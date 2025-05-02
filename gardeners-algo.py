@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 from scipy.io.wavfile import read, write
+import matplotlib.pyplot as plt
 
 
 class TripleNestedGardnerAllpass:
@@ -65,7 +66,7 @@ class TripleNestedGardnerAllpass:
 
 
 if __name__ == "__main__":
-    path_to_solo_instr = "flute.wav"
+    path_to_solo_instr = "audio/flute.wav"
     sr, flute_data = read(path_to_solo_instr)
     
     room_settings = [200, 500, 700, 1200]
@@ -78,6 +79,24 @@ if __name__ == "__main__":
         dry_wet=0.35,
     )
 
+    # Generate 1 second impulse (first sample is 1, rest are 0)
+    impulse = np.zeros(sr)
+    impulse[0] = 1.0
+
+    # Process impulse through the reverb
+    impulse_response = reverb_effect.process(impulse)
+
+    # Plot the impulse response
+    plt.figure(figsize=(10, 4))
+    plt.plot(impulse_response)
+    plt.title("Impulse Response of TripleNestedGardnerAllpass")
+    plt.xlabel("Sample")
+    plt.ylabel("Amplitude")
+    plt.tight_layout()
+    plt.show()
+    plt.savefig("impulse_respnse.png")
+
+    # Process the actual flute data
     y = reverb_effect.process(flute_data)
 
     write("flute_out_cathedral.wav", rate=sr, data=y)
